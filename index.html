@@ -1,0 +1,760 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Programa Lista Itera - UCM</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Open+Sans:wght@300;400;600&display=swap');
+
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: #0a0a0a; 
+            color: #ffffff;
+            font-family: 'Open Sans', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            overflow: hidden;
+            perspective: 2500px; 
+        }
+
+        .book-container {
+            position: relative;
+            width: 90vw;
+            max-width: 480px; 
+            height: 85vh;
+            max-height: 750px;
+            transform-style: preserve-3d;
+        }
+
+        .page {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background-color: #ffffff;
+            border-radius: 6px 16px 16px 6px;
+            box-shadow: 
+                inset 15px 0 30px -10px rgba(0,0,0,0.15), 
+                10px 20px 40px rgba(0,0,0,0.4);
+            
+            transform-origin: left center;
+            transform-style: preserve-3d;
+            transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), 
+                        opacity 0.4s ease, 
+                        box-shadow 0.5s ease;
+            
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+            
+            opacity: 0;
+            visibility: hidden;
+            transform: rotateY(0deg) translateZ(-50px);
+        }
+
+        .page.active {
+            opacity: 1;
+            visibility: visible;
+            transform: rotateY(0deg) translateZ(0px);
+            z-index: 10;
+        }
+
+        .page.flipped-left {
+            transform: rotateY(-135deg) translateZ(20px); 
+            opacity: 0;
+            visibility: hidden;
+            box-shadow: inset -15px 0 30px -10px rgba(0,0,0,0.3);
+        }
+
+        .page::after {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 15%);
+            pointer-events: none;
+            z-index: 5;
+        }
+
+        .watermark {
+            position: absolute;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-image: url('guccimorty.jpg'); 
+            background-size: cover;
+            background-position: center;
+            opacity: 0.25; 
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        .content {
+            position: relative;
+            z-index: 1;
+            padding: 40px 30px;
+            flex-grow: 1;
+            overflow-y: auto; 
+            color: #1a1a1a; 
+            background: transparent;
+        }
+
+        .content::-webkit-scrollbar { width: 5px; }
+        .content::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 10px; }
+
+        h1 {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 800;
+            font-size: 28px;
+            text-transform: uppercase;
+            text-align: center;
+            color: #111;
+            margin-bottom: 5px;
+            letter-spacing: -0.5px;
+        }
+        h2 {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 19px;
+            color: #222;
+            margin-top: 25px;
+            border-left: 5px solid #2563eb;
+            padding-left: 12px;
+        }
+        .subtitle {
+            text-align: center;
+            font-size: 15px;
+            color: #555;
+            margin-bottom: 30px;
+        }
+        p, li {
+            font-size: 15px;
+            line-height: 1.6;
+            color: #333;
+        }
+
+        .team-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 15px 10px;
+            margin-top: 20px;
+        }
+
+        .team-member {
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s ease, filter 0.2s ease;
+        }
+
+        .team-member:hover {
+            transform: scale(1.05) translateY(-3px);
+            filter: brightness(1.1);
+        }
+
+        .team-member img {
+            width: 100%;
+            max-width: 100px;
+            aspect-ratio: 3/4;
+            object-fit: cover;
+            border-radius: 4px;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+            background-color: #e5e7eb;
+            margin-bottom: 8px;
+            border: 1px solid #ddd;
+        }
+
+        .team-name {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 11px;
+            font-weight: 800;
+            color: #111;
+            line-height: 1.2;
+            margin: 0;
+        }
+
+        .team-role {
+            font-size: 10px;
+            color: #2563eb;
+            font-weight: 600;
+            line-height: 1.2;
+            margin-top: 2px;
+        }
+
+        .controls {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 15px 20px;
+            background: #f9f9f9;
+            border-top: 1px solid #eaeaea;
+            border-radius: 0 0 16px 6px;
+        }
+
+        button {
+            padding: 10px 18px;
+            background-color: #1a1a1a;
+            color: #fff;
+            border: none;
+            border-radius: 6px;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s, background 0.3s ease, box-shadow 0.3s ease;
+        }
+        button:hover { background-color: #2563eb; transform: scale(1.05); }
+        button:active { transform: scale(0.95); }
+        button:disabled { background-color: #cccccc; cursor: not-allowed; transform: none; }
+        
+        .btn-finish { background-color: #2563eb; box-shadow: 0 4px 10px rgba(37,99,235,0.4); }
+        .btn-finish:hover { background-color: #1d4ed8; }
+
+        .page-counter {
+            font-size: 13px;
+            color: #888;
+            font-weight: bold;
+        }
+
+        /* --- POP-UP DEL INTEGRANTE --- */
+        #member-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.7);
+            backdrop-filter: blur(5px);
+            z-index: 10000;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+        }
+
+        #member-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .member-card {
+            background: #ffffff;
+            width: 85%;
+            max-width: 320px;
+            border-radius: 16px;
+            overflow: hidden;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            transform: scale(0.8) translateY(20px);
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+        }
+
+        #member-overlay.show .member-card {
+            transform: scale(1) translateY(0);
+        }
+
+        .close-member {
+            position: absolute;
+            top: 15px; right: 15px;
+            background: rgba(0,0,0,0.6);
+            color: #fff;
+            border: none;
+            border-radius: 50%;
+            width: 32px; height: 32px;
+            font-size: 20px;
+            cursor: pointer;
+            z-index: 10;
+            display: flex; align-items: center; justify-content: center;
+            padding: 0;
+        }
+        
+        .close-member:hover { background: #2563eb; }
+
+        .member-img-wrapper {
+            position: relative;
+            width: 100%;
+            height: 280px;
+        }
+
+        .member-img-wrapper img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: top center;
+        }
+
+        .img-gradient {
+            position: absolute;
+            bottom: 0; left: 0; width: 100%; height: 120px;
+            background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
+        }
+
+        .member-info {
+            padding: 0 25px 30px 25px;
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            margin-top: -20px; 
+        }
+
+        .member-info h2 {
+            margin: 0; border: none; padding: 0;
+            font-size: 22px; color: #111;
+        }
+
+        .member-info h3 {
+            margin: 5px 0 15px 0;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 13px; color: #2563eb;
+            text-transform: uppercase; letter-spacing: 0.5px;
+        }
+
+        .member-info p {
+            font-size: 13px;
+            color: #555;
+            margin: 10px 0 0 0;
+            padding: 0 15px; /* Esto crea la sangría a los lados izquierdo y derecho */
+            text-align: justify; /* Cuadra el texto para que se vea formal */
+            word-wrap: break-word; /* Fuerza al texto a bajar a la siguiente línea si choca con el borde */
+            line-height: 1.6; /* Da aire entre las líneas del texto */
+            
+            /* Controles por si escribes demasiado texto */
+            max-height: 120px; 
+            overflow-y: auto; 
+        }
+
+        .member-info p::-webkit-scrollbar { width: 4px; }
+        .member-info p::-webkit-scrollbar-thumb { background: #cccccc; border-radius: 4px; }
+
+        /* --- POP-UP FINAL --- */
+        #finale-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 9999;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.4s ease, visibility 0.4s ease;
+        }
+
+        #finale-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .finale-card {
+            background: #111;
+            padding: 40px 30px;
+            border-radius: 20px;
+            border: 2px solid #2563eb;
+            box-shadow: 0 0 50px rgba(37, 99, 235, 0.4);
+            text-align: center;
+            max-width: 400px;
+            width: 85%;
+            transform: scale(0.7);
+            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            position: relative;
+            z-index: 2;
+        }
+
+        #finale-overlay.show .finale-card {
+            transform: scale(1);
+        }
+
+        .finale-card img {
+            width: 100%;
+            height: auto;
+            border-radius: 12px;
+            border: 3px solid #fff;
+            margin: 20px 0;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+        }
+
+        .finale-card h1 {
+            color: #2563eb;
+            font-size: 38px;
+            margin: 0;
+            text-shadow: 2px 2px 0px #fff;
+        }
+
+        .finale-card p {
+            color: #ccc;
+            font-size: 16px;
+            margin-top: 5px;
+            margin-bottom: 25px;
+        }
+
+        .close-finale {
+            background: transparent;
+            color: #fff;
+            border: 1px solid #fff;
+            margin-top: 10px;
+        }
+        .close-finale:hover { background: #fff; color: #111; }
+
+        .confetti {
+            position: absolute;
+            width: 10px; height: 10px;
+            background-color: #2563eb;
+            top: -10px;
+            z-index: 1;
+            border-radius: 2px;
+            animation: fall linear forwards;
+        }
+
+        @keyframes fall {
+            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
+            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
+        }
+
+        @media (max-width: 400px) {
+            .content { padding: 25px 20px; }
+            h1 { font-size: 24px; }
+            .team-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; } 
+            .member-card { max-width: 280px; }
+            .member-img-wrapper { height: 240px; }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="book-container" id="book">
+        
+        <!-- PÁGINA 1: PORTADA -->
+        <div class="page active" id="page-0">
+            <div class="watermark"></div>
+            <div class="content" style="display: flex; flex-direction: column; justify-content: center;">
+                <h1>Lista Itera</h1>
+                <div class="subtitle">Programa Centro de Estudiantes UCM<br>Período 2026 - 2027</div>
+                
+                <p style="text-align: center; font-style: italic; font-weight: 600; font-size: 18px; margin-top: 30px; color: #111;">
+                    "[Escribe aquí tu lema]"
+                </p>
+                <p style="text-align: center; font-size: 13px; color: #666; margin-top: 50px;">
+                    Presiona continuar para abrir el documento.
+                </p>
+            </div>
+            <div class="controls">
+                <button disabled>Anterior</button>
+                <span class="page-counter">1 / 4</span>
+                <button onclick="nextPage()">Continuar ➔</button>
+            </div>
+        </div>
+
+        <!-- PÁGINA 2: MISIÓN -->
+        <div class="page" id="page-1">
+            <div class="watermark"></div>
+            <div class="content">
+                <h2>Misión y Visión</h2>
+                <p>[AQUÍ: Explica qué los motivó a postularse y qué buscan mejorar en la universidad.]</p>
+                
+                <h2>Eje Académico</h2>
+                <p>[AQUÍ: Propuestas sobre rendimiento, laboratorios o mallas.]</p>
+                <ul>
+                    <li>[Propuesta 1]</li>
+                    <li>[Propuesta 2]</li>
+                </ul>
+            </div>
+            <div class="controls">
+                <button onclick="prevPage()">🡠 Atrás</button>
+                <span class="page-counter">2 / 4</span>
+                <button onclick="nextPage()">Siguiente ➔</button>
+            </div>
+        </div>
+
+        <!-- PÁGINA 3: BIENESTAR -->
+        <div class="page" id="page-2">
+            <div class="watermark"></div>
+            <div class="content">
+                <h2>Bienestar Estudiantil</h2>
+                <p>[AQUÍ: Zonas de descanso, salud mental, microondas, etc.]</p>
+                
+                <h2>Deportes y Cultura</h2>
+                <p>[AQUÍ: Torneos, ferias, bienvenidas, fiestas.]</p>
+                <ul>
+                    <li>[Actividad 1]</li>
+                    <li>[Actividad 2]</li>
+                </ul>
+            </div>
+            <div class="controls">
+                <button onclick="prevPage()">🡠 Atrás</button>
+                <span class="page-counter">3 / 4</span>
+                <button onclick="nextPage()">Siguiente ➔</button>
+            </div>
+        </div>
+
+        <!-- PÁGINA 4: EQUIPO -->
+        <div class="page" id="page-3">
+            <div class="watermark"></div>
+            <div class="content">
+                <h2>Nuestro Equipo</h2>
+                
+                <div class="team-grid">
+                    <!-- Integrante 1 (Ejemplo de cómo rellenar datos locales) -->
+                    <div class="team-member" onclick="openMember(this)" 
+                        data-name="Joaquín Hernández" 
+                        data-role="Presidente(a)" 
+                        data-img="joaquin_hernandez.jpg"
+                        data-desc="hola, soy Joaquín Hernández, estudiante de Ingeniería Civil en Informática y candidato a Presidente del Centro de Estudiantes UCM. Mi objetivo es representar a todos los estudiantes, mejorar la calidad académica y fomentar un ambiente inclusivo y participativo en nuestra universidad.">
+                        <img src="joaquin_hernandez.jpg" alt="Joaquín Hernández">
+                        <p class="team-name">Joaquín Hernández</p>
+                        <p class="team-role">Presidente(a)</p>
+                    </div>
+                    
+                    <div class="team-member" onclick="openMember(this)"
+                         data-name="Maximiliano Opazo" 
+                         data-role="Vicepresidente(a)" 
+                         data-img="max.jpg"
+                         data-desc="Escribe aquí la descripción de Maximiliano.">
+                        <img src="max.jpg" alt="Maximiliano Opazo" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Max'">
+                        <p class="team-name">Maximiliano Opazo</p>
+                        <p class="team-role">Vicepresidente(a)</p>
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+                         data-name="Alexandra Norambuena" 
+                         data-role="Secretaria Académica" 
+                         data-img="alexandra.jpg"
+                         data-desc="Escribe aquí la descripción de Alexandra.">
+                        <img src="alexandra.jpg" alt="Alexandra Norambuena" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Alexandra'">
+                        <p class="team-name">Alexandra Norambuena</p>
+                        <p class="team-role">Secretaria Académica</p>
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+                         data-name="Catalina Ibáñez" 
+                         data-role="Secretaria de Finanzas" 
+                         data-img="catalina.jpg"
+                         data-desc="Escribe aquí la descripción de Catalina.">
+                        <img src="catalina.jpg" alt="Catalina Ibáñez" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Catalina'">
+                        <p class="team-name">Catalina Ibáñez</p>
+                        <p class="team-role">Secretaria de Finanzas</p>
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+                         data-name="Diego Solís" 
+                         data-role="Secretario general" 
+                         data-img="diego.jpg"
+                         data-desc="Escribe aquí la descripción de Diego.">
+                        <img src="diego.jpg" alt="Diego Solís" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Diego'">
+                        <p class="team-name">Diego Solís</p>
+                        <p class="team-role">Secretario general</p>
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+                         data-name="Trinidad Morales" 
+                         data-role="Secretaria Ejecutiva" 
+                         data-img="trinidad.jpg"
+                         data-desc="Escribe aquí la descripción de Trinidad.">
+                        <img src="trinidad.jpg" alt="Trinidad Morales" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Trinidad'">
+                        <p class="team-name">Trinidad Morales</p>
+                        <p class="team-role">Secretaria Ejecutiva</p>
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+                         data-name="Blas Rojas" 
+                         data-role="Secretario de Comunicaciones" 
+                         data-img="blas.jpg"
+                         data-desc="Escribe aquí la descripción de Blas.">
+                        <img src="blas.jpg" alt="Blas Rojas" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Blas'">
+                        <p class="team-name">Blas Rojas</p>
+                        <p class="team-role">Sec. Comunicaciones</p>
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+                         data-name="Javier Flores" 
+                         data-role="Vocalia de comunicaciones" 
+                         data-img="javier.jpg"
+                         data-desc="Escribe aquí la descripción de Javier.">
+                        <img src="javier.jpg" alt="Javier Flores" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Javier'">
+                        <p class="team-name">Javier Flores</p>
+                        <p class="team-role">Voc. Comunicaciones</p>
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+                         data-name="Martin Guarda" 
+                         data-role="Vocalia De extensión, arte y cultura" 
+                         data-img="martin.jpg"
+                         data-desc="Escribe aquí la descripción de Martin.">
+                        <img src="martin.jpg" alt="Martin Guarda" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Martin'">
+                        <p class="team-name">Martin Guarda</p>
+                        <p class="team-role">Voc. Extensión y Arte</p>
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+                         data-name="Estefanía Troncoso" 
+                         data-role="Vocalia Proyectos estudiantiles" 
+                         data-img="estefania.jpg"
+                         data-desc="Escribe aquí la descripción de Estefanía.">
+                        <img src="estefania.jpg" alt="Estefanía Troncoso" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Estefania'">
+                        <p class="team-name">Estefanía Troncoso</p>
+                        <p class="team-role">Voc. Proyectos Est.</p>
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+                         data-name="Carina Alejandra Peña" 
+                         data-role="Vocalia Eventos" 
+                         data-img="carina.jpg"
+                         data-desc="Escribe aquí la descripción de Carina.">
+                        <img src="carina.jpg" alt="Carina Alejandra Peña" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Carina'">
+                        <p class="team-name">Carina Alejandra Peña</p>
+                        <p class="team-role">Voc. Eventos</p>
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+                         data-name="Joaquin Vásquez" 
+                         data-role="Vocalia Deportes" 
+                         data-img="joaquin_v.jpg"
+                         data-desc="Escribe aquí la descripción de Joaquin V.">
+                        <img src="joaquin_v.jpg" alt="Joaquin Vásquez" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Joaquin+V'">
+                        <p class="team-name">Joaquin Vásquez</p>
+                        <p class="team-role">Voc. Deportes</p>
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+                         data-name="Nombre Pendiente" 
+                         data-role="Cargo Pendiente" 
+                         data-img="pendiente.jpg"
+                         data-desc="Descripción pendiente.">
+                        <img src="pendiente.jpg" alt="XXX" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=XXX'">
+                        <p class="team-name">XXX</p>
+                        <p class="team-role">[Cargo Pendiente]</p>
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <button onclick="prevPage()">🡠 Atrás</button>
+                <span class="page-counter">4 / 4</span>
+                <button class="btn-finish" onclick="triggerFinale()">FINALIZAR ★</button>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- MODAL DEL INTEGRANTE -->
+    <div id="member-overlay">
+        <div class="member-card">
+            <button class="close-member" onclick="closeMember()">×</button>
+            
+            <div class="member-img-wrapper">
+                <img id="modal-member-img" src="" alt="Integrante">
+                <div class="img-gradient"></div>
+            </div>
+            
+            <div class="member-info">
+                <h2 id="modal-member-name">Nombre</h2>
+                <h3 id="modal-member-role">Cargo</h3>
+                <!-- ESTE PÁRRAFO AHORA RECIBE LA DESCRIPCIÓN INDIVIDUAL -->
+                <p id="modal-member-desc">DESCRIPCION INTEGRANTE</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL FINAL -->
+    <div id="finale-overlay">
+        <div class="finale-card">
+            <img src="foto-team.jpg" alt="Equipo Lista Itera" onerror="this.src='https://via.placeholder.com/400x250/2563eb/ffffff?text=FOTO+DEL+EQUIPO'">
+            <h1>¡VOTA ITERA!</h1>
+            <p>Hagamos historia en la UCM.</p>
+            <button class="close-finale" onclick="closeFinale()">Volver al programa</button>
+        </div>
+    </div>
+
+    <script>
+        let currentPage = 0;
+        const pages = document.querySelectorAll('.page');
+        const totalPages = pages.length;
+
+        pages.forEach((page, index) => {
+            page.style.zIndex = totalPages - index;
+        });
+
+        function updateBook() {
+            pages.forEach((page, index) => {
+                page.classList.remove('active', 'flipped-left');
+                if (index === currentPage) {
+                    page.classList.add('active');
+                } else if (index < currentPage) {
+                    page.classList.add('flipped-left');
+                }
+            });
+        }
+
+        function nextPage() {
+            if (currentPage < totalPages - 1) {
+                currentPage++;
+                updateBook();
+            }
+        }
+
+        function prevPage() {
+            if (currentPage > 0) {
+                currentPage--;
+                updateBook();
+            }
+        }
+
+        /* --- FUNCIONES DEL MODAL DE INTEGRANTES MODIFICADA --- */
+        function openMember(element) {
+            const img = element.getAttribute('data-img');
+            const name = element.getAttribute('data-name');
+            const role = element.getAttribute('data-role');
+            // AQUÍ SE EXTRAE LA DESCRIPCIÓN INDIVIDUAL
+            const desc = element.getAttribute('data-desc');
+
+            document.getElementById('modal-member-img').src = img;
+            document.getElementById('modal-member-name').innerText = name;
+            document.getElementById('modal-member-role').innerText = role;
+            // Y AQUÍ SE INYECTA EN EL MODAL
+            document.getElementById('modal-member-desc').innerText = desc;
+
+            document.getElementById('member-overlay').classList.add('show');
+        }
+
+        function closeMember() {
+            document.getElementById('member-overlay').classList.remove('show');
+        }
+
+        document.getElementById('member-overlay').addEventListener('click', function(e) {
+            if(e.target === this) {
+                closeMember();
+            }
+        });
+
+        /* --- FUNCIONES DE LA PANTALLA FINAL --- */
+        function triggerFinale() {
+            const overlay = document.getElementById('finale-overlay');
+            overlay.classList.add('show');
+            createConfetti();
+        }
+
+        function closeFinale() {
+            const overlay = document.getElementById('finale-overlay');
+            overlay.classList.remove('show');
+            const oldConfetti = document.querySelectorAll('.confetti');
+            oldConfetti.forEach(c => c.remove());
+        }
+
+        function createConfetti() {
+            const overlay = document.getElementById('finale-overlay');
+            const colors = ['#2563eb', '#ffffff', '#1d4ed8', '#e5e7eb'];
+            
+            for (let i = 0; i < 60; i++) {
+                let conf = document.createElement('div');
+                conf.className = 'confetti';
+                conf.style.left = Math.random() * 100 + 'vw';
+                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
+                conf.style.animationDuration = (Math.random() * 2 + 2) + 's';
+                conf.style.animationDelay = (Math.random() * 1) + 's';
+                overlay.appendChild(conf);
+            }
+        }
+    </script>
+</body>
+</html>
