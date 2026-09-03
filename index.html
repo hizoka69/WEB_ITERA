@@ -276,19 +276,19 @@
         .member-img-wrapper {
             position: relative;
             width: 100%;
-            height: 280px;
+            height: 360px; /* Aumentamos bastante la altura para ver más foto */
         }
 
         .member-img-wrapper img {
             width: 100%;
             height: 100%;
             object-fit: cover;
-            object-position: top center;
+            object-position: center 15%; /* Centra la imagen calculando desde el rostro, no desde el borde superior */
         }
 
         .img-gradient {
             position: absolute;
-            bottom: 0; left: 0; width: 100%; height: 120px;
+            bottom: 0; left: 0; width: 100%; height: 60px; /* Degradado mucho más corto para que empiece más abajo */
             background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
         }
 
@@ -297,7 +297,7 @@
             text-align: center;
             position: relative;
             z-index: 2;
-            margin-top: -20px; 
+            margin-top: -30px; /* Ajuste sutil para que el texto encaje con el nuevo degradado */
         }
 
         .member-info h2 {
@@ -316,12 +316,11 @@
             font-size: 13px;
             color: #555;
             margin: 10px 0 0 0;
-            padding: 0 15px; /* Esto crea la sangría a los lados izquierdo y derecho */
-            text-align: justify; /* Cuadra el texto para que se vea formal */
-            word-wrap: break-word; /* Fuerza al texto a bajar a la siguiente línea si choca con el borde */
-            line-height: 1.6; /* Da aire entre las líneas del texto */
+            padding: 0 15px; 
+            text-align: justify; 
+            word-wrap: break-word; 
+            line-height: 1.6; 
             
-            /* Controles por si escribes demasiado texto */
             max-height: 120px; 
             overflow-y: auto; 
         }
@@ -497,7 +496,6 @@
                 <h2>Nuestro Equipo</h2>
                 
                 <div class="team-grid">
-                    <!-- Integrante 1 (Ejemplo de cómo rellenar datos locales) -->
                     <div class="team-member" onclick="openMember(this)" 
                         data-name="Joaquín Hernández" 
                         data-role="Presidente(a)" 
@@ -513,7 +511,7 @@
                          data-role="Vicepresidente(a)" 
                          data-img="max.jpg"
                          data-desc="Escribe aquí la descripción de Maximiliano.">
-                        <img src="max.jpg" alt="Maximiliano Opazo" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Max'">
+                        <img src="max.jpg" alt="Maximiliano Opazo">
                         <p class="team-name">Maximiliano Opazo</p>
                         <p class="team-role">Vicepresidente(a)</p>
                     </div>
@@ -523,7 +521,7 @@
                          data-role="Secretaria Académica" 
                          data-img="alexandra.jpg"
                          data-desc="Escribe aquí la descripción de Alexandra.">
-                        <img src="alexandra.jpg" alt="Alexandra Norambuena" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Alexandra'">
+                        <img src="alexandra.jpg" alt="Alexandra Norambuena">
                         <p class="team-name">Alexandra Norambuena</p>
                         <p class="team-role">Secretaria Académica</p>
                     </div>
@@ -533,7 +531,7 @@
                          data-role="Secretaria de Finanzas" 
                          data-img="catalina.jpg"
                          data-desc="Escribe aquí la descripción de Catalina.">
-                        <img src="catalina.jpg" alt="Catalina Ibáñez" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Catalina'">
+                        <img src="catalina.jpg" alt="Catalina Ibáñez">
                         <p class="team-name">Catalina Ibáñez</p>
                         <p class="team-role">Secretaria de Finanzas</p>
                     </div>
@@ -543,7 +541,7 @@
                          data-role="Secretario general" 
                          data-img="diego.jpg"
                          data-desc="Escribe aquí la descripción de Diego.">
-                        <img src="diego.jpg" alt="Diego Solís" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Diego'">
+                        <img src="diego.jpg" alt="Diego Solís">
                         <p class="team-name">Diego Solís</p>
                         <p class="team-role">Secretario general</p>
                     </div>
@@ -553,7 +551,7 @@
                          data-role="Secretaria Ejecutiva" 
                          data-img="trinidad.jpg"
                          data-desc="Escribe aquí la descripción de Trinidad.">
-                        <img src="trinidad.jpg" alt="Trinidad Morales" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Trinidad'">
+                        <img src="trinidad.jpg" alt="Trinidad Morales">
                         <p class="team-name">Trinidad Morales</p>
                         <p class="team-role">Secretaria Ejecutiva</p>
                     </div>
@@ -563,7 +561,7 @@
                          data-role="Secretario de Comunicaciones" 
                          data-img="blas.jpg"
                          data-desc="BLAS EL GAY MAXIMO SUPREMO DE LOS COJONES.">
-                        <img src="blas.jpg" alt="Blas Rojas" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Blas'">
+                        <img src="blas.jpg" alt="Blas Rojas">
                         <p class="team-name">Blas Rojas</p>
                         <p class="team-role">Sec. Comunicaciones</p>
                     </div>
@@ -573,7 +571,7 @@
                          data-role="Vocalia de comunicaciones" 
                          data-img="javier.jpg"
                          data-desc="Escribe aquí la descripción de Javier.">
-                        <img src="javier.jpg" alt="Javier Flores" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Javier'">
+                        <img src="javier.jpg" alt="Javier Flores">
                         <p class="team-name">Javier Flores</p>
                         <p class="team-role">Voc. Comunicaciones</p>
                     </div>
@@ -583,7 +581,7 @@
                          data-role="Vocalia De extensión, arte y cultura" 
                          data-img="martin.jpg"
                          data-desc="Escribe aquí la descripción de Martin.">
-                        <img src="martin.jpg" alt="Martin Guarda" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Martin'">
+                        <img src="martin.jpg" alt="Martin Guarda">
                         <p class="team-name">Martin Guarda</p>
                         <p class="team-role">Voc. Extensión y Arte</p>
                     </div>
@@ -593,17 +591,17 @@
                          data-role="Vocalia Proyectos estudiantiles" 
                          data-img="estefania.jpg"
                          data-desc="Escribe aquí la descripción de Estefanía.">
-                        <img src="estefania.jpg" alt="Estefanía Troncoso" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Estefania'">
+                        <img src="estefania.jpg" alt="Estefanía Troncoso">
                         <p class="team-name">Estefanía Troncoso</p>
                         <p class="team-role">Voc. Proyectos Est.</p>
                     </div>
 
                     <div class="team-member" onclick="openMember(this)"
-                         data-name="Carina Alejandra Peña" 
+                         data-name=" Carina Peña y Lillo" 
                          data-role="Vocalia Eventos" 
                          data-img="carina.jpg"
                          data-desc="Escribe aquí la descripción de Carina.">
-                        <img src="carina.jpg" alt="Carina Alejandra Peña" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Carina'">
+                        <img src="carina.jpg" alt="Carina Alejandra Peña">
                         <p class="team-name">Carina Alejandra Peña</p>
                         <p class="team-role">Voc. Eventos</p>
                     </div>
@@ -613,19 +611,19 @@
                          data-role="Vocalia Deportes" 
                          data-img="joaquin_v.jpg"
                          data-desc="Escribe aquí la descripción de Joaquin V.">
-                        <img src="joaquin_v.jpg" alt="Joaquin Vásquez" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Joaquin+V'">
+                        <img src="joaquin_v.jpg" alt="Joaquin Vásquez">
                         <p class="team-name">Joaquin Vásquez</p>
                         <p class="team-role">Voc. Deportes</p>
                     </div>
 
                     <div class="team-member" onclick="openMember(this)"
-                         data-name="Nombre Pendiente" 
-                         data-role="Cargo Pendiente" 
-                         data-img="pendiente.jpg"
-                         data-desc="Descripción pendiente.">
-                        <img src="pendiente.jpg" alt="XXX" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=XXX'">
-                        <p class="team-name">XXX</p>
-                        <p class="team-role">[Cargo Pendiente]</p>
+                         data-name="Martina Cofrée" 
+                         data-role="Vocalia Finanzas" 
+                         data-img="martina_cofre.jpg"
+                         data-desc="Escribe aquí la descripción de Martina.">
+                        <img src="martina_cofre.jpg" alt="Martina Cofre" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Martina+Cofre'">
+                        <p class="team-name">Martina Cofre</p>
+                        <p class="team-role">Voc. Finanzas</p>
                     </div>
                 </div>
             </div>
@@ -651,7 +649,6 @@
             <div class="member-info">
                 <h2 id="modal-member-name">Nombre</h2>
                 <h3 id="modal-member-role">Cargo</h3>
-                <!-- ESTE PÁRRAFO AHORA RECIBE LA DESCRIPCIÓN INDIVIDUAL -->
                 <p id="modal-member-desc">DESCRIPCION INTEGRANTE</p>
             </div>
         </div>
@@ -660,7 +657,7 @@
     <!-- MODAL FINAL -->
     <div id="finale-overlay">
         <div class="finale-card">
-            <img src="foto-team.jpg" alt="Equipo Lista Itera" onerror="this.src='https://via.placeholder.com/400x250/2563eb/ffffff?text=FOTO+DEL+EQUIPO'">
+            <img src="foto-team.jpg" alt="Equipo Lista Itera">
             <h1>¡VOTA ITERA!</h1>
             <p>Hagamos historia en la UCM.</p>
             <button class="close-finale" onclick="closeFinale()">Volver al programa</button>
@@ -701,18 +698,15 @@
             }
         }
 
-        /* --- FUNCIONES DEL MODAL DE INTEGRANTES MODIFICADA --- */
         function openMember(element) {
             const img = element.getAttribute('data-img');
             const name = element.getAttribute('data-name');
             const role = element.getAttribute('data-role');
-            // AQUÍ SE EXTRAE LA DESCRIPCIÓN INDIVIDUAL
             const desc = element.getAttribute('data-desc');
 
             document.getElementById('modal-member-img').src = img;
             document.getElementById('modal-member-name').innerText = name;
             document.getElementById('modal-member-role').innerText = role;
-            // Y AQUÍ SE INYECTA EN EL MODAL
             document.getElementById('modal-member-desc').innerText = desc;
 
             document.getElementById('member-overlay').classList.add('show');
@@ -728,7 +722,6 @@
             }
         });
 
-        /* --- FUNCIONES DE LA PANTALLA FINAL --- */
         function triggerFinale() {
             const overlay = document.getElementById('finale-overlay');
             overlay.classList.add('show');
