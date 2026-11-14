@@ -1,755 +1,1540 @@
 <!DOCTYPE html>
+
 <html lang="es">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Content-Security-Policy" content="script-src 'unsafe-inline'; object-src 'none'; base-uri 'none'; form-action 'none'; connect-src 'none'; img-src * data: blob:; style-src 'unsafe-inline' https://fonts.googleapis.com; font-src https://fonts.gstatic.com;">
+    <meta name="referrer" content="no-referrer">
+    <meta name="theme-color" content="#071a45">
+    <!-- Anti-iframe: la página queda oculta hasta comprobar que no está incrustada en otro sitio -->
+    <style id="anti-frame">html{visibility:hidden}</style>
+    <script>if(window.top===window.self){document.getElementById('anti-frame').remove();}else{try{window.top.location=window.self.location;}catch(e){}}</script>
+
+
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+
     <title>Programa Lista Itera - UCM</title>
+
     <link rel="icon" type="image/png" href="MONO (BLANCO).png">
+
     <style>
+
         @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;800&family=Open+Sans:wght@300;400;600&display=swap');
 
+
+
         body {
+
             margin: 0;
+
             padding: 0;
-            background-color: #0a0a0a; 
+
+            background: radial-gradient(ellipse at 50% 20%, #0d2a6b 0%, #071a45 55%, #040d26 100%); 
+
             color: #ffffff;
+
             font-family: 'Open Sans', sans-serif;
+
             display: flex;
+
             justify-content: center;
+
             align-items: center;
+
             height: 100vh;
+
             overflow: hidden;
+
             perspective: 2500px; 
+
         }
+
+
 
         .book-container {
+
             position: relative;
+
             width: 90vw;
+
             max-width: 480px; 
+
             height: 85vh;
+
             max-height: 750px;
+
             transform-style: preserve-3d;
+
         }
+
+
 
         .page {
+
             position: absolute;
+
             top: 0; left: 0;
+
             width: 100%; height: 100%;
+
             background-color: #ffffff;
+
             border-radius: 6px 16px 16px 6px;
+
             box-shadow: 
+
                 inset 15px 0 30px -10px rgba(0,0,0,0.15), 
+
                 10px 20px 40px rgba(0,0,0,0.4);
-            
+
+
+
             transform-origin: left center;
+
             transform-style: preserve-3d;
+
             transition: transform 0.25s cubic-bezier(0.2, 0.8, 0.2, 1), 
+
                         opacity 0.4s ease, 
+
                         box-shadow 0.5s ease;
-            
+
+
+
             display: flex;
+
             flex-direction: column;
+
             overflow: hidden;
-            
+
+
+
             opacity: 0;
+
             visibility: hidden;
+
             transform: rotateY(0deg) translateZ(-50px);
+
         }
+
+
 
         .page.active {
+
             opacity: 1;
+
             visibility: visible;
+
             transform: rotateY(0deg) translateZ(0px);
+
             z-index: 10;
+
         }
+
+
 
         .page.flipped-left {
+
             transform: rotateY(-135deg) translateZ(20px); 
+
             opacity: 0;
+
             visibility: hidden;
+
             box-shadow: inset -15px 0 30px -10px rgba(0,0,0,0.3);
+
         }
+
+
 
         .page::after {
+
             content: '';
+
             position: absolute;
+
             top: 0; left: 0; width: 100%; height: 100%;
+
             background: linear-gradient(to right, rgba(0,0,0,0.15) 0%, rgba(0,0,0,0) 15%);
+
             pointer-events: none;
+
             z-index: 5;
+
         }
+
+
 
         .watermark {
+
             position: absolute;
+
             top: 0; left: 0; right: 0; bottom: 0;
+
             background-image: url('LOGOTIPO.png'); 
-            background-size: cover;
+
+            /* CAMBIAR AQUÍ el tamaño del logo de fondo: 45%, 60%, 80%... */
+            background-size: 90% auto;
+            background-repeat: no-repeat;
+
             background-position: center;
-            opacity: 0.25; 
+
+            opacity: 0.17; 
+
             z-index: 0;
+
             pointer-events: none;
+
         }
+
+
 
         .content {
+
             position: relative;
+
             z-index: 1;
+
             padding: 40px 30px;
+
             flex-grow: 1;
+
             overflow-y: auto; 
+
             color: #1a1a1a; 
+
             background: transparent;
+
         }
+
+
 
         .content::-webkit-scrollbar { width: 5px; }
+
         .content::-webkit-scrollbar-thumb { background: #d4d4d4; border-radius: 10px; }
 
+
+
         h1 {
+
+            font-family: 'Montserrat', sans-serif;
+
+            font-weight: 800;
+
+            font-size: 28px;
+
+            text-transform: uppercase;
+
+            text-align: center;
+
+            color: #111;
+
+            margin-bottom: 5px;
+
+            letter-spacing: -0.5px;
+
+        }
+
+        h2 {
+
+            font-family: 'Montserrat', sans-serif;
+
+            font-size: 19px;
+
+            color: #222;
+
+            margin-top: 25px;
+
+            border-left: 5px solid var(--azul);
+            border-image: linear-gradient(to bottom, var(--azul-claro), var(--verde)) 1;
+
+            padding-left: 12px;
+
+        }
+
+        .subtitle {
+
+            text-align: center;
+
+            font-size: 15px;
+
+            color: #555;
+
+            margin-bottom: 30px;
+
+        }
+
+        p, li {
+
+            font-size: 15px;
+
+            line-height: 1.6;
+
+            color: #333;
+
+        }
+
+
+
+        .proposal-list {
+            list-style: none;
+            padding: 0;
+            margin: 18px 0 0;
+        }
+
+        .proposal-list li {
+            border-left: 3px solid var(--azul);
+            border-image: linear-gradient(to bottom, var(--azul-claro), var(--verde)) 1;
+            padding: 0 0 0 12px;
+            margin-bottom: 18px;
+        }
+
+        .proposal-title {
+            display: block;
             font-family: 'Montserrat', sans-serif;
             font-weight: 800;
-            font-size: 28px;
-            text-transform: uppercase;
-            text-align: center;
-            color: #111;
-            margin-bottom: 5px;
-            letter-spacing: -0.5px;
+            font-size: 13px;
+            color: #161616;
+            margin-bottom: 4px;
         }
-        h2 {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 19px;
-            color: #222;
-            margin-top: 25px;
-            border-left: 5px solid #2563eb;
-            padding-left: 12px;
-        }
-        .subtitle {
-            text-align: center;
-            font-size: 15px;
-            color: #555;
-            margin-bottom: 30px;
-        }
-        p, li {
-            font-size: 15px;
-            line-height: 1.6;
-            color: #333;
+
+        .proposal-desc {
+            display: block;
+            font-size: 12px;
+            line-height: 1.5;
+            color: #505050;
         }
 
         .team-grid {
+
             display: grid;
+
             grid-template-columns: repeat(3, 1fr);
+
             gap: 15px 10px;
+
             margin-top: 20px;
+
         }
 
-        .team-member {
-            text-align: center;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            cursor: pointer;
-            transition: transform 0.2s ease, filter 0.2s ease;
+        .team-grid-two {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            max-width: 270px;
+            margin-left: auto;
+            margin-right: auto;
         }
 
-        .team-member:hover {
-            transform: scale(1.05) translateY(-3px);
-            filter: brightness(1.1);
-        }
-
-        .team-member img {
-            width: 100%;
-            max-width: 100px;
-            aspect-ratio: 3/4;
-            object-fit: cover;
-            border-radius: 4px;
-            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
-            background-color: #e5e7eb;
-            margin-bottom: 8px;
-            border: 1px solid #ddd;
-        }
-
-        .team-name {
-            font-family: 'Montserrat', sans-serif;
-            font-size: 11px;
-            font-weight: 800;
-            color: #111;
-            line-height: 1.2;
-            margin: 0;
-        }
-
-        .team-role {
-            font-size: 10px;
-            color: #2563eb;
-            font-weight: 600;
-            line-height: 1.2;
-            margin-top: 2px;
-        }
-
-        .controls {
-            position: relative;
-            z-index: 2;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 20px;
-            background: #f9f9f9;
-            border-top: 1px solid #eaeaea;
-            border-radius: 0 0 16px 6px;
-        }
-
-        button {
-            padding: 10px 18px;
-            background-color: #1a1a1a;
-            color: #fff;
-            border: none;
-            border-radius: 6px;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 13px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: transform 0.2s, background 0.3s ease, box-shadow 0.3s ease;
-        }
-        button:hover { background-color: #2563eb; transform: scale(1.05); }
-        button:active { transform: scale(0.95); }
-        button:disabled { background-color: #cccccc; cursor: not-allowed; transform: none; }
-        
-        .btn-finish { background-color: #2563eb; box-shadow: 0 4px 10px rgba(37,99,235,0.4); }
-        .btn-finish:hover { background-color: #1d4ed8; }
-
-        .page-counter {
-            font-size: 13px;
-            color: #888;
-            font-weight: bold;
-        }
-
-        /* --- POP-UP DEL INTEGRANTE --- */
-        #member-overlay {
-            position: fixed;
-            top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 0, 0, 0.7);
-            backdrop-filter: blur(5px);
-            z-index: 10000;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            visibility: hidden;
-            transition: opacity 0.3s ease, visibility 0.3s ease;
-        }
-
-        #member-overlay.show {
-            opacity: 1;
-            visibility: visible;
-        }
-
-        .member-card {
-            background: #ffffff;
-            width: 85%;
-            max-width: 320px;
-            border-radius: 16px;
-            overflow: hidden;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
-            transform: scale(0.8) translateY(20px);
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            position: relative;
-        }
-
-        #member-overlay.show .member-card {
-            transform: scale(1) translateY(0);
-        }
-
-        .close-member {
-            position: absolute;
-            top: 15px; right: 15px;
-            background: rgba(0,0,0,0.6);
-            color: #fff;
-            border: none;
-            border-radius: 50%;
-            width: 32px; height: 32px;
-            font-size: 20px;
-            cursor: pointer;
-            z-index: 10;
-            display: flex; align-items: center; justify-content: center;
-            padding: 0;
-        }
-        
-        .close-member:hover { background: #2563eb; }
-
-        .member-img-wrapper {
-            position: relative;
-            width: 100%;
-            height: 360px; /* Aumentamos bastante la altura para ver más foto */
-        }
-
-        .member-img-wrapper img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            object-position: center 15%; /* Centra la imagen calculando desde el rostro, no desde el borde superior */
-        }
-
-        .img-gradient {
-            position: absolute;
-            bottom: 0; left: 0; width: 100%; height: 60px; /* Degradado mucho más corto para que empiece más abajo */
-            background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
-        }
-
-        .member-info {
-            padding: 0 25px 30px 25px;
-            text-align: center;
-            position: relative;
-            z-index: 2;
-            margin-top: -30px; /* Ajuste sutil para que el texto encaje con el nuevo degradado */
-        }
-
-        .member-info h2 {
-            margin: 0; border: none; padding: 0;
-            font-size: 22px; color: #111;
-        }
-
-        .member-info h3 {
-            margin: 5px 0 15px 0;
-            font-family: 'Montserrat', sans-serif;
-            font-size: 13px; color: #2563eb;
-            text-transform: uppercase; letter-spacing: 0.5px;
-        }
-
-        .member-info p {
+        .team-intro {
             font-size: 13px;
             color: #555;
-            margin: 10px 0 0 0;
-            padding: 0 15px; 
-            text-align: justify; 
-            word-wrap: break-word; 
-            line-height: 1.6; 
-            
-            max-height: 120px; 
-            overflow-y: auto; 
+            margin: 10px 0 20px;
         }
+
+
+
+        .team-member {
+
+            text-align: center;
+
+            display: flex;
+
+            flex-direction: column;
+
+            align-items: center;
+
+            cursor: pointer;
+
+            transition: transform 0.2s ease, filter 0.2s ease;
+
+        }
+
+
+
+        .team-member:hover {
+
+            transform: scale(1.05) translateY(-3px);
+
+            filter: brightness(1.1);
+
+        }
+
+
+
+        .team-member img {
+
+            width: 100%;
+
+            max-width: 100px;
+
+            aspect-ratio: 3/4;
+
+            object-fit: cover;
+
+            border-radius: 4px;
+
+            box-shadow: 0 3px 6px rgba(0,0,0,0.15);
+
+            background-color: #e5e7eb;
+
+            margin-bottom: 8px;
+
+            border: 1px solid #ddd;
+
+        }
+
+
+
+        .team-name {
+
+            font-family: 'Montserrat', sans-serif;
+
+            font-size: 11px;
+
+            font-weight: 800;
+
+            color: #111;
+
+            line-height: 1.2;
+
+            margin: 0;
+
+        }
+
+
+
+        .team-role {
+
+            font-size: 10px;
+
+            color: var(--azul);
+
+            font-weight: 600;
+
+            line-height: 1.2;
+
+            margin-top: 2px;
+
+        }
+
+
+
+        .controls {
+
+            position: relative;
+
+            z-index: 2;
+
+            display: flex;
+
+            justify-content: space-between;
+
+            align-items: center;
+
+            padding: 15px 20px;
+
+            background: #f9f9f9;
+
+            border-top: 1px solid #eaeaea;
+
+            border-radius: 0 0 16px 6px;
+
+        }
+
+
+
+        button {
+
+            padding: 10px 18px;
+
+            background-color: #1a1a1a;
+
+            color: #fff;
+
+            border: none;
+
+            border-radius: 6px;
+
+            font-family: 'Montserrat', sans-serif;
+
+            font-size: 13px;
+
+            font-weight: 600;
+
+            cursor: pointer;
+
+            transition: transform 0.2s, background 0.3s ease, box-shadow 0.3s ease;
+
+        }
+
+        button:hover { background-color: var(--azul); transform: scale(1.05); }
+
+        button:active { transform: scale(0.95); }
+
+        button:disabled { background-color: #cccccc; cursor: not-allowed; transform: none; }
+
+
+
+        .btn-finish { background: linear-gradient(135deg, var(--azul-profundo), var(--azul-claro)); box-shadow: 0 4px 10px rgba(16,72,198,0.35); }
+
+        .btn-finish:hover { background: linear-gradient(135deg, var(--azul-claro), var(--azul-profundo)); }
+
+
+
+        .page-counter {
+
+            font-size: 13px;
+
+            color: #888;
+
+            font-weight: bold;
+
+        }
+
+
+
+        /* --- POP-UP DEL INTEGRANTE --- */
+
+        #member-overlay {
+
+            position: fixed;
+
+            top: 0; left: 0; width: 100vw; height: 100vh;
+
+            background: rgba(0, 0, 0, 0.7);
+
+            backdrop-filter: blur(5px);
+
+            z-index: 10000;
+
+            display: flex;
+
+            justify-content: center;
+
+            align-items: center;
+
+            opacity: 0;
+
+            visibility: hidden;
+
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+
+        }
+
+
+
+        #member-overlay.show {
+
+            opacity: 1;
+
+            visibility: visible;
+
+        }
+
+
+
+        .member-card {
+
+            background: #ffffff;
+
+            width: 85%;
+
+            max-width: 320px;
+
+            border-radius: 16px;
+
+            overflow: hidden;
+
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+
+            transform: scale(0.8) translateY(20px);
+
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
+            position: relative;
+
+        }
+
+
+
+        #member-overlay.show .member-card {
+
+            transform: scale(1) translateY(0);
+
+        }
+
+
+
+        .close-member {
+
+            position: absolute;
+
+            top: 15px; right: 15px;
+
+            background: rgba(0,0,0,0.6);
+
+            color: #fff;
+
+            border: none;
+
+            border-radius: 50%;
+
+            width: 32px; height: 32px;
+
+            font-size: 20px;
+
+            cursor: pointer;
+
+            z-index: 10;
+
+            display: flex; align-items: center; justify-content: center;
+
+            padding: 0;
+
+        }
+
+
+
+        .close-member:hover { background: var(--azul); }
+
+
+
+        .member-img-wrapper {
+
+            position: relative;
+
+            width: 100%;
+
+            height: 360px; /* Aumentamos bastante la altura para ver más foto */
+
+        }
+
+
+
+        .member-img-wrapper img {
+
+            width: 100%;
+
+            height: 100%;
+
+            object-fit: cover;
+
+            object-position: center 15%; /* Centra la imagen calculando desde el rostro, no desde el borde superior */
+
+        }
+
+
+
+        .img-gradient {
+
+            position: absolute;
+
+            bottom: 0; left: 0; width: 100%; height: 60px; /* Degradado mucho más corto para que empiece más abajo */
+
+            background: linear-gradient(to bottom, rgba(255,255,255,0) 0%, rgba(255,255,255,1) 100%);
+
+        }
+
+
+
+        .member-info {
+
+            padding: 0 25px 30px 25px;
+
+            text-align: center;
+
+            position: relative;
+
+            z-index: 2;
+
+            margin-top: -30px; /* Ajuste sutil para que el texto encaje con el nuevo degradado */
+
+        }
+
+
+
+        .member-info h2 {
+
+            margin: 0; border: none; padding: 0;
+
+            font-size: 22px; color: #111;
+
+        }
+
+
+
+        .member-info h3 {
+
+            margin: 5px 0 15px 0;
+
+            font-family: 'Montserrat', sans-serif;
+
+            font-size: 13px; color: var(--azul);
+
+            text-transform: uppercase; letter-spacing: 0.5px;
+
+        }
+
+
+
+        .member-info p {
+
+            font-size: 13px;
+
+            color: #555;
+
+            margin: 10px 0 0 0;
+
+            padding: 0 15px; 
+
+            text-align: justify; 
+
+            word-wrap: break-word; 
+
+            line-height: 1.6; 
+
+
+
+            max-height: 120px; 
+
+            overflow-y: auto; 
+
+        }
+
+
 
         .member-info p::-webkit-scrollbar { width: 4px; }
+
         .member-info p::-webkit-scrollbar-thumb { background: #cccccc; border-radius: 4px; }
 
+
+
         /* --- POP-UP FINAL --- */
+
         #finale-overlay {
+
             position: fixed;
+
             top: 0; left: 0; width: 100vw; height: 100vh;
+
             background: rgba(0, 0, 0, 0.85);
+
             backdrop-filter: blur(5px);
+
             z-index: 9999;
+
             display: flex;
+
             justify-content: center;
+
             align-items: center;
+
             opacity: 0;
+
             visibility: hidden;
-            transition: opacity 0.4s ease, visibility 0.4s ease;
+
+            /* La ventana final aparece de inmediato, sin animaciones. */
+
         }
+
+
 
         #finale-overlay.show {
+
             opacity: 1;
+
             visibility: visible;
+
         }
+
+
 
         .finale-card {
+
             background: #111;
+
             padding: 40px 30px;
+
             border-radius: 20px;
-            border: 2px solid #2563eb;
-            box-shadow: 0 0 50px rgba(37, 99, 235, 0.4);
+
+            border: 2px solid var(--azul);
+
+            box-shadow: 0 0 50px rgba(16, 72, 198, 0.4);
+
             text-align: center;
+
             max-width: 400px;
+
             width: 85%;
-            transform: scale(0.7);
-            transition: transform 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+
             position: relative;
+
             z-index: 2;
+
         }
 
-        #finale-overlay.show .finale-card {
-            transform: scale(1);
-        }
+
 
         .finale-card img {
+
             width: 100%;
+
             height: auto;
+
             border-radius: 12px;
+
             border: 3px solid #fff;
+
             margin: 20px 0;
+
             box-shadow: 0 10px 20px rgba(0,0,0,0.5);
+
         }
+
+
 
         .finale-card h1 {
-            color: #2563eb;
+
+            color: var(--azul);
+
             font-size: 38px;
+
             margin: 0;
+
             text-shadow: 2px 2px 0px #fff;
+            color: var(--azul-claro);
+
         }
+
+
 
         .finale-card p {
+
             color: #ccc;
+
             font-size: 16px;
+
             margin-top: 5px;
+
             margin-bottom: 25px;
+
         }
+
+
 
         .close-finale {
+
             background: transparent;
+
             color: #fff;
+
             border: 1px solid #fff;
+
             margin-top: 10px;
+
         }
+
         .close-finale:hover { background: #fff; color: #111; }
 
-        .confetti {
-            position: absolute;
-            width: 10px; height: 10px;
-            background-color: #2563eb;
-            top: -10px;
-            z-index: 1;
-            border-radius: 2px;
-            animation: fall linear forwards;
-        }
 
-        @keyframes fall {
-            0% { transform: translateY(-10vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(110vh) rotate(720deg); opacity: 0; }
-        }
 
         @media (max-width: 400px) {
+
             .content { padding: 25px 20px; }
+
             h1 { font-size: 24px; }
+
             .team-grid { grid-template-columns: repeat(2, 1fr); gap: 15px; } 
+
             .member-card { max-width: 280px; }
+
             .member-img-wrapper { height: 240px; }
+
+        }
+
+
+        /* ===== PALETA (sacada del logo) ===== */
+        :root {
+            --azul-profundo: #1048c6;
+            --azul: #1a6bd1;
+            --azul-claro: #2099df;
+            --verde: #68d0aa;
+            --verde-claro: #7fd9aa;
+        }
+
+        /* ===== PROTECCIÓN (CSS) ===== */
+        html, body {
+            -webkit-user-select: none; -moz-user-select: none; user-select: none;
+            -webkit-touch-callout: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+        img { -webkit-user-drag: none; user-drag: none; }
+        @media print { html, body { display: none !important; } }
+
+        /* ===== ADAPTACIÓN A MÓVIL ===== */
+        html { -webkit-text-size-adjust: 100%; }
+        body { height: 100vh; height: 100dvh; touch-action: manipulation; overscroll-behavior: none; }
+        #member-overlay, #finale-overlay { width: auto; height: auto; inset: 0; }
+        .member-card { max-height: 92vh; max-height: 92dvh; overflow-y: auto; }
+        .finale-card { max-height: 94vh; max-height: 94dvh; overflow-y: auto; box-sizing: border-box; }
+        .finale-card img { max-height: 45vh; max-height: 45dvh; object-fit: contain; }
+        .content { -webkit-overflow-scrolling: touch; overscroll-behavior: contain; }
+
+        /* Sin efectos "hover" en pantallas táctiles */
+        @media (hover: none) {
+            .team-member:hover { transform: none; filter: none; }
+            button:hover { transform: none; background-color: #1a1a1a; }
+            .btn-finish:hover { background: linear-gradient(135deg, var(--azul-profundo), var(--azul-claro)); }
+            button:active { transform: scale(0.95); background-color: var(--azul); }
+            .team-member:active { transform: scale(0.97); }
+        }
+
+        @media (max-width: 600px) {
+            .book-container {
+                width: 94vw;
+                height: calc(100vh - 24px);
+                height: calc(100dvh - 24px);
+                max-height: none;
+            }
+            .content { padding: 28px 20px; }
+            h1 { font-size: 26px; }
+            h2 { font-size: 18px; }
+            p, li { font-size: 15px; }
+            .proposal-title { font-size: 14px; }
+            .proposal-desc { font-size: 13px; line-height: 1.55; }
+            .team-intro { font-size: 13.5px; }
+            .team-name { font-size: 12px; }
+            .team-role { font-size: 11px; }
+            .team-member img { max-width: 110px; }
+            .controls {
+                padding: 12px 14px;
+                padding-bottom: calc(12px + env(safe-area-inset-bottom, 0px));
+            }
+            button { min-height: 44px; padding: 10px 16px; }
+            .close-member { width: 40px; height: 40px; font-size: 24px; }
+            .member-img-wrapper { height: min(360px, 48vh); height: min(360px, 48dvh); }
+            .member-info p { font-size: 14px; max-height: 18vh; max-height: 18dvh; }
+            .finale-card { padding: 28px 20px; }
+            .finale-card h1 { font-size: 30px; }
+        }
+
+        /* Celulares en horizontal (poca altura) */
+        @media (max-height: 480px) and (orientation: landscape) {
+            .book-container { height: calc(100dvh - 12px); max-width: 560px; }
+            .member-card { display: flex; max-width: 560px; width: 90%; }
+            .member-img-wrapper { height: auto; min-height: 220px; width: 45%; flex-shrink: 0; }
+            .img-gradient { display: none; }
+            .member-info { margin-top: 0; padding: 20px 20px 20px; text-align: left; align-self: center; }
         }
     </style>
+
 </head>
+
 <body>
 
+
+
     <div class="book-container" id="book">
-        
+
+
+
         <!-- PÁGINA 1: PORTADA -->
+
         <div class="page active" id="page-0">
+
             <div class="watermark"></div>
+
             <div class="content" style="display: flex; flex-direction: column; justify-content: center;">
+
                 <h1>Lista Itera</h1>
+
                 <div class="subtitle">Programa Centro de Estudiantes UCM<br>Período 2026 - 2027</div>
-                
+
+
+
                 <p style="text-align: center; font-style: italic; font-weight: 600; font-size: 18px; margin-top: 30px; color: #111;">
+
                     "Siempre activos al cambio"
+
                 </p>
+
                 <p style="text-align: center; font-size: 13px; color: #666; margin-top: 50px;">
+
                     Presiona continuar para abrir el documento.
+
                 </p>
+
             </div>
+
             <div class="controls">
+
                 <button disabled>Anterior</button>
-                <span class="page-counter">1 / 4</span>
+
+                <span class="page-counter">1 / 5</span>
+
                 <button onclick="nextPage()">Continuar ➔</button>
+
             </div>
+
         </div>
+
+
 
         <!-- PÁGINA 2: MISIÓN -->
+
         <div class="page" id="page-1">
+
             <div class="watermark"></div>
+
             <div class="content">
-                <h2>Misión y Visión</h2>
-                <p>[AQUÍ: Explica qué los motivó a postularse y qué buscan mejorar en la universidad.]</p>
-                
-                <h2>Eje Académico</h2>
-                <p>[AQUÍ: Propuestas sobre rendimiento, laboratorios o mallas.]</p>
-                <ul>
-                    <li>[Propuesta 1]</li>
-                    <li>[Propuesta 2]</li>
+
+
+
+                <h2>Propuestas de nuestra lista</h2>
+
+                <ul class="proposal-list">
+                    <li>
+                        <span class="proposal-title">Clubes y actividades extracurriculares</span>
+                        <span class="proposal-desc">Impulsar espacios para compartir intereses, desarrollar talentos y participar fuera de clases (tanto hobbies de los alumnos, como programación competitiva).</span>
+                    </li>
+                    <li>
+                        <span class="proposal-title">Socios estratégicos para la carrera</span>
+                        <span class="proposal-desc">Buscar alianzas con organizaciones para abrir oportunidades a las actividades de la carrera como a esta misma.</span>
+                    </li>
+                    <li>
+                        <span class="proposal-title">Manual de bienvenida para mechones</span>
+                        <span class="proposal-desc">Reunir información útil sobre los primeros ramos, servicios universitarios y trámites para facilitar su ingreso a primer año.</span>
+                    </li>
+                    <li>
+                        <span class="proposal-title">Apadrinamiento a estudiantes nuevos</span>
+                        <span class="proposal-desc">Vincular a estudiantes de cursos superiores con novatos para resolver dudas y acompañar su inicio en la universidad.
+                            Donde los alumnos de años superiores se pongan como opcion para ser padrinos y los novatos escogen a su padrino por medio de una presentacion del supuesto padrino, para asi generar mas confianza y seguridad en los nuevos estudiantes.</span>
+                        </span>
+                    </li>
+                    <li>
+                        <span class="proposal-title">Torneos periódicos de e-sports</span>
+                        <span class="proposal-desc">Organizar competencias recreativas que fomenten la convivencia entre compañeros y no se dejen de lado los gustos de nuestros compañeros.</span>
+                    </li>
+                    <li>
+                        <span class="proposal-title">Difusión y preparación de actividades</span>
+                        <span class="proposal-desc">Comunicar con anticipación las fechas, los detalles y las formas de participar.</span>
+                    </li>
+                    <li>
+                        <span class="proposal-title">Charlas y conversatorios</span>
+                        <span class="proposal-desc">Invitar a profesionales y egresados  de la universidadpara compartir sus experiencias académicas y laborales.</span>
+                    </li>
                 </ul>
+
             </div>
+
             <div class="controls">
+
                 <button onclick="prevPage()">🡠 Atrás</button>
-                <span class="page-counter">2 / 4</span>
+
+                <span class="page-counter">2 / 5</span>
+
                 <button onclick="nextPage()">Siguiente ➔</button>
+
             </div>
+
         </div>
 
-        <!-- PÁGINA 3: BIENESTAR -->
+
+
+        <!-- PÁGINA 3: PRESIDENCIAS -->
         <div class="page" id="page-2">
             <div class="watermark"></div>
             <div class="content">
-                <h2>Bienestar Estudiantil</h2>
-                <p>[AQUÍ: Zonas de descanso, salud mental, microondas, etc.]</p>
-                
-                <h2>Deportes y Cultura</h2>
-                <p>[AQUÍ: Torneos, ferias, bienvenidas, fiestas.]</p>
-                <ul>
-                    <li>[Actividad 1]</li>
-                    <li>[Actividad 2]</li>
-                </ul>
-            </div>
-            <div class="controls">
-                <button onclick="prevPage()">🡠 Atrás</button>
-                <span class="page-counter">3 / 4</span>
-                <button onclick="nextPage()">Siguiente ➔</button>
-            </div>
-        </div>
-
-        <!-- PÁGINA 4: EQUIPO -->
-        <div class="page" id="page-3">
-            <div class="watermark"></div>
-            <div class="content">
-                <h2>Nuestro Equipo</h2>
-                
-                <div class="team-grid">
+                <h2>Presidencias</h2>
+                <p class="team-intro">Presidencia y vicepresidencia de Lista Itera.</p>
+                <div class="team-grid team-grid-two">
                     <div class="team-member" onclick="openMember(this)" 
+
                         data-name="Joaquín Hernández" 
+
                         data-role="Presidente(a)" 
+
                         data-img="joaquin_hernandez.jpg"
-                        data-desc="hola, soy Joaquín Hernández, estudiante de Ingeniería Civil en Informática y candidato a Presidente del Centro de Estudiantes UCM. Mi objetivo es representar a todos los estudiantes, mejorar la calidad académica y fomentar un ambiente inclusivo y participativo en nuestra universidad.">
+
+                        data-desc="hola, soy Joaquín Hernández">
                         <img src="joaquin_hernandez.jpg" alt="Joaquín Hernández">
+
                         <p class="team-name">Joaquín Hernández</p>
+
                         <p class="team-role">Presidente(a)</p>
+
                     </div>
-                    
+
                     <div class="team-member" onclick="openMember(this)"
+
                          data-name="Maximiliano Opazo" 
+
                          data-role="Vicepresidente(a)" 
-                         data-img="max.jpg"
+
+                         data-img="monoql.jpg"
+
                          data-desc="Escribe aquí la descripción de Maximiliano.">
-                        <img src="rene.jpg" alt="Maximiliano Opazo">
+
+                        <img src="monoql.jpg" alt="Maximiliano Opazo">
+
                         <p class="team-name">Maximiliano Opazo</p>
+
                         <p class="team-role">Vicepresidente(a)</p>
-                    </div>
 
-                    <div class="team-member" onclick="openMember(this)"
-                         data-name="Alexandra Norambuena" 
-                         data-role="Secretaria Académica" 
-                         data-img="alexandra.jpg"
-                         data-desc="Escribe aquí la descripción de Alexandra.">
-                        <img src="rene.jpg" alt="Alexandra Norambuena">
-                        <p class="team-name">Alexandra Norambuena</p>
-                        <p class="team-role">Secretaria Académica</p>
-                    </div>
-
-                    <div class="team-member" onclick="openMember(this)"
-                         data-name="Catalina Ibáñez" 
-                         data-role="Secretaria de Finanzas" 
-                         data-img="catalina.jpg"
-                         data-desc="Escribe aquí la descripción de Catalina.">
-                        <img src="rene.jpg" alt="Catalina Ibáñez">
-                        <p class="team-name">Catalina Ibáñez</p>
-                        <p class="team-role">Secretaria de Finanzas</p>
-                    </div>
-
-                    <div class="team-member" onclick="openMember(this)"
-                         data-name="Diego Solís" 
-                         data-role="Secretario general" 
-                         data-img="diego.jpg"
-                         data-desc="Escribe aquí la descripción de Diego.">
-                        <img src="rene.jpg" alt="Diego Solís">
-                        <p class="team-name">Diego Solís</p>
-                        <p class="team-role">Secretario general</p>
-                    </div>
-
-                    <div class="team-member" onclick="openMember(this)"
-                         data-name="Trinidad Morales" 
-                         data-role="Secretaria Ejecutiva" 
-                         data-img="trinidad.jpg"
-                         data-desc="Escribe aquí la descripción de Trinidad.">
-                        <img src="rene.jpg" alt="Trinidad Morales">
-                        <p class="team-name">Trinidad Morales</p>
-                        <p class="team-role">Secretaria Ejecutiva</p>
-                    </div>
-
-                    <div class="team-member" onclick="openMember(this)"
-                         data-name="Blas Rojas" 
-                         data-role="Secretario de Comunicaciones" 
-                         data-img="blas.jpg"
-                         data-desc="BLAS EL GAY MAXIMO SUPREMO DE LOS COJONES.">
-                        <img src="blas.jpg" alt="Blas Rojas">
-                        <p class="team-name">Blas Rojas</p>
-                        <p class="team-role">Sec. Comunicaciones</p>
-                    </div>
-
-                    <div class="team-member" onclick="openMember(this)"
-                         data-name="Javier Flores" 
-                         data-role="Vocalia de comunicaciones" 
-                         data-img="javier.jpg"
-                         data-desc="Escribe aquí la descripción de Javier.">
-                        <img src="rene.jpg" alt="Javier Flores">
-                        <p class="team-name">Javier Flores</p>
-                        <p class="team-role">Voc. Comunicaciones</p>
-                    </div>
-
-                    <div class="team-member" onclick="openMember(this)"
-                         data-name="Martin Guarda" 
-                         data-role="Vocalia De extensión, arte y cultura" 
-                         data-img="martin.jpg"
-                         data-desc="Escribe aquí la descripción de Martin.">
-                        <img src="rene.jpg" alt="Martin Guarda">
-                        <p class="team-name">Martin Guarda</p>
-                        <p class="team-role">Voc. Extensión y Arte</p>
-                    </div>
-
-                    <div class="team-member" onclick="openMember(this)"
-                         data-name="Estefanía Troncoso" 
-                         data-role="Vocalia Proyectos estudiantiles" 
-                         data-img="estefania.jpg"
-                         data-desc="Escribe aquí la descripción de Estefanía.">
-                        <img src="rene.jpg" alt="Estefanía Troncoso">
-                        <p class="team-name">Estefanía Troncoso</p>
-                        <p class="team-role">Voc. Proyectos Est.</p>
-                    </div>
-
-                    <div class="team-member" onclick="openMember(this)"
-                         data-name=" Carina Peña y Lillo" 
-                         data-role="Vocalia Eventos" 
-                         data-img="carina.jpg"
-                         data-desc="Escribe aquí la descripción de Carina.">
-                        <img src="rene.jpg" alt="Carina Alejandra Peña">
-                        <p class="team-name">Carina Alejandra Peña</p>
-                        <p class="team-role">Voc. Eventos</p>
-                    </div>
-
-                    <div class="team-member" onclick="openMember(this)"
-                         data-name="Joaquin Vásquez" 
-                         data-role="Vocalia Deportes" 
-                         data-img="joaquin_v.jpg"
-                         data-desc="Escribe aquí la descripción de Joaquin V.">
-                        <img src="rene.jpg" alt="Joaquin Vásquez">
-                        <p class="team-name">Joaquin Vásquez</p>
-                        <p class="team-role">Voc. Deportes</p>
-                    </div>
-
-                    <div class="team-member" onclick="openMember(this)"
-                         data-name="Martina Cofrée" 
-                         data-role="Vocalia Finanzas" 
-                         data-img="martina_cofre.jpg"
-                         data-desc="Escribe aquí la descripción de Martina.">
-                        <img src="rene.jpg" alt="Martina Cofre" onerror="this.src='https://via.placeholder.com/150x200/cccccc/ffffff?text=Martina+Cofre'">
-                        <p class="team-name">Martina Cofre</p>
-                        <p class="team-role">Voc. Finanzas</p>
                     </div>
                 </div>
             </div>
             <div class="controls">
                 <button onclick="prevPage()">🡠 Atrás</button>
-                <span class="page-counter">4 / 4</span>
-                <button class="btn-finish" onclick="triggerFinale()">FINALIZAR ★</button>
+                <span class="page-counter">3 / 5</span>
+                <button onclick="nextPage()">Siguiente ➔</button>
+            </div>
+        </div>
+
+        <!-- PÁGINA 4: SECRETARÍAS -->
+        <div class="page" id="page-3">
+            <div class="watermark"></div>
+            <div class="content">
+                <h2>Secretarías</h2>
+                <p class="team-intro">Representantes responsables de las distintas secretarías.</p>
+                <div class="team-grid">
+                    <div class="team-member" onclick="openMember(this)"
+
+                         data-name="Alexandra Norambuena" 
+
+                         data-role="Secretaria Académica" 
+
+                         data-img="monoql.jpg"
+
+                         data-desc="Escribe aquí la descripción de Alexandra.">
+
+                        <img src="monoql.jpg" alt="Alexandra Norambuena">
+
+                        <p class="team-name">Alexandra Norambuena</p>
+
+                        <p class="team-role">Secretaria Académica</p>
+
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+
+                         data-name="Catalina Ibáñez" 
+
+                         data-role="Secretaria de Finanzas" 
+
+                         data-img="monoql.jpg"
+
+                         data-desc="Escribe aquí la descripción de Catalina.">
+
+                        <img src="monoql.jpg" alt="Catalina Ibáñez">
+
+                        <p class="team-name">Catalina Ibáñez</p>
+
+                        <p class="team-role">Secretaria de Finanzas</p>
+
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+
+                         data-name="Diego Solís" 
+
+                         data-role="Secretario general" 
+
+                         data-img="monoql.jpg"
+
+                         data-desc="Escribe aquí la descripción de Diego.">
+
+                        <img src="monoql.jpg" alt="Diego Solís">
+
+                        <p class="team-name">Diego Solís</p>
+
+                        <p class="team-role">Secretario general</p>
+
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+
+                         data-name="Trinidad Morales" 
+
+                         data-role="Secretaria de Bienestar" 
+
+                         data-img="monoql.jpg"
+
+                         data-desc="Escribe aquí la descripción de Trinidad.">
+
+                        <img src="monoql.jpg" alt="Trinidad Morales">
+
+                        <p class="team-name">Trinidad Morales</p>
+
+                        <p class="team-role">Secretaria de Bienestar</p>
+
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+
+                         data-name="Blas Rojas" 
+
+                         data-role="Secretario de Comunicaciones" 
+
+                         data-img="blas.jpg"
+
+                         data-desc="Escribe aquí una breve presentación de Blas.">
+
+                        <img src="blas.jpg" alt="Blas Rojas">
+
+                        <p class="team-name">Blas Rojas</p>
+
+                        <p class="team-role">Sec. Comunicaciones</p>
+
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <button onclick="prevPage()">🡠 Atrás</button>
+                <span class="page-counter">4 / 5</span>
+                <button onclick="nextPage()">Siguiente ➔</button>
+            </div>
+        </div>
+
+        <!-- PÁGINA 5: VOCALÍAS -->
+        <div class="page" id="page-4">
+            <div class="watermark"></div>
+            <div class="content">
+                <h2>Vocalías</h2>
+                <p class="team-intro">Integrantes de las vocalías y sus áreas de trabajo.</p>
+                <div class="team-grid">
+                    <div class="team-member" onclick="openMember(this)"
+
+                         data-name="Javier Flores" 
+
+                         data-role="Vocalia de comunicaciones" 
+
+                         data-img="monoql.jpg"
+
+                         data-desc="Escribe aquí la descripción de Javier.">
+
+                        <img src="monoql.jpg" alt="Javier Flores">
+
+                        <p class="team-name">Javier Flores</p>
+
+                        <p class="team-role">Voc. Comunicaciones</p>
+
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+
+                         data-name="Martin Guarda" 
+
+                         data-role="Vocalia De extensión, arte y cultura" 
+
+                         data-img="monoql.jpg"
+
+                         data-desc="Escribe aquí la descripción de Martin.">
+
+                        <img src="monoql.jpg" alt="Martin Guarda">
+
+                        <p class="team-name">Martin Guarda</p>
+
+                        <p class="team-role">Voc. Extensión y Arte</p>
+
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+
+                         data-name="Carina Peña y Lillo" 
+
+                         data-role="Vocalia Eventos" 
+
+                         data-img="monoql.jpg"
+
+                         data-desc="Escribe aquí la descripción de Carina.">
+
+                        <img src="monoql.jpg" alt="Carina Alejandra Peña">
+
+                        <p class="team-name">Carina Alejandra Peña</p>
+
+                        <p class="team-role">Voc. Eventos</p>
+
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+
+                         data-name="Joaquin Vásquez" 
+
+                         data-role="Vocalia Deportes" 
+
+                         data-img="monoql.jpg"
+
+                         data-desc="Escribe aquí la descripción de Joaquin V.">
+
+                        <img src="monoql.jpg" alt="Joaquin Vásquez">
+
+                        <p class="team-name">Joaquin Vásquez</p>
+
+                        <p class="team-role">Voc. Deportes</p>
+
+                    </div>
+
+                    <div class="team-member" onclick="openMember(this)"
+
+                         data-name="Martina Cofrée" 
+
+                         data-role="Vocalia Finanzas" 
+
+                         data-img="monoql.jpg"
+
+                         data-desc="Escribe aquí la descripción de Martina.">
+
+                        <img src="monoql.jpg" alt="Martina Cofre">
+
+                        <p class="team-name">Martina Cofre</p>
+
+                        <p class="team-role">Voc. Finanzas</p>
+
+                    </div>
+                </div>
+            </div>
+            <div class="controls">
+                <button onclick="prevPage()">🡠 Atrás</button>
+                <span class="page-counter">5 / 5</span>
+                <button class="btn-finish" onclick="triggerFinale()">FINALIZAR</button>
             </div>
         </div>
 
     </div>
+
+
 
     <!-- MODAL DEL INTEGRANTE -->
+
     <div id="member-overlay">
+
         <div class="member-card">
+
             <button class="close-member" onclick="closeMember()">×</button>
-            
+
+
+
             <div class="member-img-wrapper">
+
                 <img id="modal-member-img" src="" alt="Integrante">
+
                 <div class="img-gradient"></div>
+
             </div>
-            
+
+
+
             <div class="member-info">
+
                 <h2 id="modal-member-name">Nombre</h2>
+
                 <h3 id="modal-member-role">Cargo</h3>
+
                 <p id="modal-member-desc">DESCRIPCION INTEGRANTE</p>
+
             </div>
+
         </div>
+
     </div>
+
+
 
     <!-- MODAL FINAL -->
+
     <div id="finale-overlay">
+
         <div class="finale-card">
+
             <img src="foto-team.png" alt="Equipo Lista Itera">
-            <img src="foto-team.png" alt="Equipo Lista Itera">
-            <h1>¡VOTA ITERA!</h1>
-            <p>Hagamos historia en la UCM.</p>
+
+            <h1>¡VOTA LISTA ITERA!</h1>
+
             <button class="close-finale" onclick="closeFinale()">Volver al programa</button>
+
         </div>
+
     </div>
 
-    <script>
+
+
+        <script>
+    /* ===== PROTECCIÓN (JS) ===== */
+    (function () {
+        var stop = function (e) { e.preventDefault(); return false; };
+        ['contextmenu','copy','cut','dragstart','selectstart'].forEach(function (ev) {
+            document.addEventListener(ev, stop);
+        });
+        document.addEventListener('keydown', function (e) {
+            var k = (e.key || '').toLowerCase(), c = e.ctrlKey || e.metaKey;
+            if (e.keyCode === 123 ||
+                (c && ['u','s','p','a','c','x'].indexOf(k) > -1) ||
+                (c && e.shiftKey && ['i','j','c','k'].indexOf(k) > -1) ||
+                (e.metaKey && e.altKey && ['i','j','c','u'].indexOf(k) > -1)) {
+                e.preventDefault(); return false;
+            }
+        });
+        function lockImgs() {
+            document.querySelectorAll('img').forEach(function (i) { i.draggable = false; });
+        }
+        lockImgs();
+        document.addEventListener('click', lockImgs);
+
+        /* Detección de herramientas de desarrollador */
+        var blocked = false, saved = null;
+        function lock() {
+            if (blocked) return; blocked = true;
+            saved = document.body.innerHTML;
+            document.body.innerHTML = '<div style="color:#fff;font-family:sans-serif;text-align:center;padding:40px;">Cierra las herramientas de desarrollador para ver el programa.</div>';
+        }
+        function check() {
+            var t = performance.now();
+            (function () { debugger; })();
+            var open = (performance.now() - t) > 120;
+            if (open) { lock(); }
+            else if (blocked) { location.reload(); }
+        }
+        setInterval(check, 1200);
+    })();
+    </script>
+<script>
+
         let currentPage = 0;
+
         const pages = document.querySelectorAll('.page');
+
         const totalPages = pages.length;
 
+
+
         pages.forEach((page, index) => {
+
             page.style.zIndex = totalPages - index;
+
         });
+
+
 
         function updateBook() {
+
             pages.forEach((page, index) => {
+
                 page.classList.remove('active', 'flipped-left');
+
                 if (index === currentPage) {
+
                     page.classList.add('active');
+
                 } else if (index < currentPage) {
+
                     page.classList.add('flipped-left');
+
                 }
+
             });
+
         }
+
+
 
         function nextPage() {
+
             if (currentPage < totalPages - 1) {
+
                 currentPage++;
+
                 updateBook();
+
             }
+
         }
+
+
 
         function prevPage() {
+
             if (currentPage > 0) {
+
                 currentPage--;
+
                 updateBook();
+
             }
+
         }
+
+
 
         function openMember(element) {
+
             const img = element.getAttribute('data-img');
+
             const name = element.getAttribute('data-name');
+
             const role = element.getAttribute('data-role');
+
             const desc = element.getAttribute('data-desc');
 
+
+
             document.getElementById('modal-member-img').src = img;
+
             document.getElementById('modal-member-name').innerText = name;
+
             document.getElementById('modal-member-role').innerText = role;
+
             document.getElementById('modal-member-desc').innerText = desc;
 
+
+
             document.getElementById('member-overlay').classList.add('show');
+
         }
+
+
 
         function closeMember() {
+
             document.getElementById('member-overlay').classList.remove('show');
+
         }
+
+
 
         document.getElementById('member-overlay').addEventListener('click', function(e) {
+
             if(e.target === this) {
+
                 closeMember();
+
             }
+
         });
 
+
+
         function triggerFinale() {
+
             const overlay = document.getElementById('finale-overlay');
+
             overlay.classList.add('show');
-            createConfetti();
+
         }
+
+
 
         function closeFinale() {
+
             const overlay = document.getElementById('finale-overlay');
+
             overlay.classList.remove('show');
-            const oldConfetti = document.querySelectorAll('.confetti');
-            oldConfetti.forEach(c => c.remove());
+
         }
 
-        function createConfetti() {
-            const overlay = document.getElementById('finale-overlay');
-            const colors = ['#2563eb', '#ffffff', '#1d4ed8', '#e5e7eb'];
-            
-            for (let i = 0; i < 60; i++) {
-                let conf = document.createElement('div');
-                conf.className = 'confetti';
-                conf.style.left = Math.random() * 100 + 'vw';
-                conf.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
-                conf.style.animationDuration = (Math.random() * 2 + 2) + 's';
-                conf.style.animationDelay = (Math.random() * 1) + 's';
-                overlay.appendChild(conf);
-            }
-        }
     </script>
+
 </body>
+
 </html>
